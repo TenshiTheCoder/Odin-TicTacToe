@@ -14,7 +14,8 @@ function createBoard() {
   }
 
   // Will be uncommented later when we create a UI for our Board
-  const getBoard = () => gameBoard;
+  const getBoard = () => gameBoard.board;
+  
   const placeMarker = (row, column, player) => {
     if (gameBoard.board[row][column].getSquareValue() === "") {
       gameBoard.board[row][column].addMarker(player);
@@ -24,18 +25,19 @@ function createBoard() {
     }
   }
 
+  // Logic to print the board to the console in an array for a clear visual
   const printBoard = () => {
   const boardWithValues = gameBoard.board.map(row =>
-    row.map(cell => cell.getSquareValue())
+    row.map(cell => cell.getSquareValue() || "")
   );
-  console.log(boardWithValues);
+
+  const formatted = boardWithValues.map(row => row.join(" | ")).join("\n-----------\n");
+  console.log(formatted);
 };
   return { getBoard, placeMarker, printBoard};
 };
 
-printBoard();
-
-// Player names Objects
+// Player names Objects, will most likely move them into the game logic later.
 let playerInfo = (playerOneName, playerTwoName) => {
     let players = [
       { name : playerOneName, marker: "X" },
@@ -45,7 +47,7 @@ let playerInfo = (playerOneName, playerTwoName) => {
 }
 
 const players = playerInfo("Angel", "Odin");
-console.log(players[0].name);
+
 
 // function to define and change the value of each square on the board
   function boardSquare() {
@@ -60,15 +62,40 @@ console.log(players[0].name);
     return {addMarker, getSquareValue};
   }
 
+// Function that defines the logic that enables playing rounds and matches
 function ticTacToe() {
-  const playerTurn = players[0];
+  const board = createBoard();
+  let playerTurn = players[0];
 
   const switchTurn = () => {
-    activePlayer = activePlayer === players[0] ? players[1] : players[0];
+    playerTurn = playerTurn === players[0] ? players[1] : players[0];
+  }
+  const getPlayerTurn = () => playerTurn; 
+
+  const newRoundStart = () => {
+    board.printBoard();
+    console.log(`New Round! It's ${getPlayerTurn().name}'s turn.`);
   }
 
-  const getPlayerTurn = () => playerTurn; 
+  const playRound = (row, column) => {
+    board.placeMarker(row, column, getPlayerTurn());
+    console.log(`${getPlayerTurn().name} placed a ${getPlayerTurn().marker} at [${row}, ${column}]`)
+
+    // Game Win Conditions to be added later
+
+    switchTurn();
+    newRoundStart();
+  }
+
+  newRoundStart();  
+
+  return {playRound, getPlayerTurn};
 }
+
+const game = ticTacToe();
+game.playRound(0, 0);
+game.playRound(0, 0);
+game.playRound(1, 0);
 
 
 
