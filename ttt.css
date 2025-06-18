@@ -17,16 +17,72 @@ h1 {
   gap: 10px;
 }
 
+.names-container {
+  display: flex;
+  justify-content: center;
+  margin: 12px;
+}
+
+#name-dialog:open {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 2rem;
+  border: none;
+  border-radius: 8px;
+}
+
+.player-one, .player-two {
+  text-align: center;
+  align-items: center;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.player-one {
+  margin-right: 90px;
+}
+
+.player-two { 
+  margin-left: 110px;
+}
+
 .ttt-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  border: 2px solid red;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+
   gap: 10px;
+  padding: 10px;
+  margin: 10px;
+  justify-content: center;
 }
 
 .cell {
-  border: 2px solid red;
+  display: flex;
+  border: 2px solid black;
+  height: 100px;
+  width: 100px;
+  cursor: pointer;
+  position: relative;
+}
+
+.cell::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  pointer-events: none;
+}
+
+.hover-x::before {
+  content: "X";
+}
+
+.hover-o::before {
+  content: "O";
 }
 
 #new-game, #names-button { 
@@ -37,4 +93,22 @@ h1 {
   align-self: center;
   justify-content: center;
 }
+
+.player-one-marker, .player-two-marker {
+  font-weight: bold;
+  align-items: center;
+  justify-content: center;
+  font-size: 100px;
+}
+
+#player-one-name {
+  margin-bottom: 10px;
+}
+
+#player-one-name, #player-two-name {
+  border: 1px solid black;
+  padding: 1px;
+}
+
+
 

@@ -32,10 +32,11 @@ function createBoard() {
   // Function to switch values of cells to player markers, need to prevent turn switching if a player tries to overwrite a cell with a value
   const placeMarker = (row, column, player) => {
     if (gameBoard.board[row][column].getSquareValue() === "") {
-      gameBoard.board[row][column].addMarker(player);
+      gameBoard.board[row][column].addMarker(player.marker);
       console.log(`${player.name} has placed an ${player.marker}`)
     } else {
       console.log("That spot is already taken");
+      
     }
   }
 
@@ -66,8 +67,8 @@ const players = playerInfo("Angel", "Odin");
   function boardSquare() {
     let squareValue = "";
 
-    const addMarker = (player) => {
-      squareValue = player.marker;
+    const addMarker = (marker) => {
+      squareValue = marker;
     }
 
     const getSquareValue = () => squareValue;
@@ -96,23 +97,71 @@ function ticTacToe() {
     console.log(`${getPlayerTurn().name} placed a ${getPlayerTurn().marker} at [${row}, ${column}]`)
 
     // Game Win Conditions to be added later
-
     switchTurn();
     newRoundStart();
   }
 
+  const resetGame = () => {
+  gameCells.forEach((cell) => {
+    cell.textContent = ""; 
+  }) 
+
+  board.printBoard();
+
+  for (let i = 0; i < board.rows; i++) {
+    for (let j = 0; j < board.columns; j++) {
+      game.board[i][j].addMarker(""); // reset internal board
+    }
+  }
+
+
+  playerTurn = players.playerOne;
+}
+
+  gameCells.forEach((gameCell, index) => {
+    // Added Variables to associate the row and columns with each cell
+    const row = Math.floor(index / 3);
+    const col = index % 3;
+
+    // Added classes to cells to show player markers on hover
+    gameCell.addEventListener("mouseenter", () => {
+      gameCell.classList.add(getPlayerTurn().marker === "X" ? "hover-x" : "hover-o");
+    })
+
+    gameCell.addEventListener("mouseleave", () => {
+      gameCell.classList.remove(getPlayerTurn().marker === "X" ? "hover-x" : "hover-o");
+    })
+
+    gameCell.addEventListener("click", () => {
+      if(gameCell.textContent === "") {
+        board.placeMarker(row, col, getPlayerTurn());
+
+        gameCell.textContent = getPlayerTurn().marker;
+
+        // Added classList to allow for styling of player markers and removal of hover effects
+        gameCell.classList.add(getPlayerTurn().marker === "X" ? "player-one-marker" : "player-two-marker");
+        gameCell.classList.remove(getPlayerTurn().marker === "X" ? "hover-x" : "hover-o");
+
+        // Update the board and begin a new turn;
+        board.printBoard();
+        switchTurn();
+        newRoundStart();
+      }
+    })
+})
+
   newRoundStart();  
 
-  return {playRound, getPlayerTurn};
+  return {playRound, getPlayerTurn, resetGame};
 }
 
 const game = ticTacToe();
-
+game.resetGame();
 // Display Player Names
-playerOneName.textContent = players.playerOne.name;
-playerTwoName.textContent = players.playerTwo.name;
+playerOneName.textContent = `${players.playerOne.name}: `;
+playerTwoName.textContent = `${players.playerTwo.name}: `;
 
-// Button Listeners to open the name dialogs
+// Button Listeners to open/close the name dialog
 changeNames.addEventListener("click", () => { 
   nameDialog.showModal();
 })
@@ -123,31 +172,21 @@ closeDialog.addEventListener("click", () => {
 
 // Event Listeners to change player names in the dialog box
 confirmNameOne.addEventListener("click", () => {
-  players.playerOne.name = playerOneNameInput.value;
-  playerOneNameInput = "";
+  playerOneName.textContent = playerOneNameInput.value;
+  playerOneNameInput.value = "";
 })
 
 confirmNameTwo.addEventListener("click", () => {
-  players.playerOne.name = playerTwoNameInput.value;
-  playerTwoNameInput = "";
+  playerTwoName.textContent = playerTwoNameInput.value;
+  playerTwoNameInput.value = "";
 })
 
 // Event Listener to reset game
 newGame.addEventListener("click", () => {
-  board = createBoard();
-  playerTurn = players.playerOne;
-  board.printBoard();
+  game.resetGame();
 })
 
 // Listener to add a marker to a cell on the board, will add win check later
-gameCells.forEach((gameCell) => {
-  gameCell.addEventListener("click", () => {
-    if(gameCell.textContent === "") {
-      gameCell.textContent = getPlayerTurn().marker;
-      board.printBoard();
-      switchTurn();
-    }
-  })
-})
+
 
 
