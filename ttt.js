@@ -1,5 +1,7 @@
 // Selectors to use for UI
 const newGame = document.querySelector("#new-game");
+let playerOneName = document.querySelector(".player-one");
+let playerTwoName = document.querySelector(".player-two");
 const changeNames = document.querySelector("#names-button");
 const nameDialog = document.querySelector("#name-dialog");
 const closeDialog = document.querySelector(".close-dialog");
@@ -8,7 +10,6 @@ const playerTwoNameInput = document.querySelector("#player-two-name");
 const confirmNameOne = document.querySelector(".confirm-name-one");
 const confirmNameTwo = document.querySelector(".confirm-name-two");
 const gameCells = document.querySelectorAll(".cell");
-
 
 // Function to create the Game Board
 function createBoard() {
@@ -79,6 +80,7 @@ function ticTacToe() {
   const board = createBoard();
   let playerTurn = players.playerOne;
 
+// 
   const switchTurn = () => {
     playerTurn = playerTurn === players.playerOne ? players.playerTwo : players.playerOne;
   }
@@ -105,6 +107,10 @@ function ticTacToe() {
 }
 
 const game = ticTacToe();
+
+// Display Player Names
+playerOneName.textContent = players.playerOne.name;
+playerTwoName.textContent = players.playerTwo.name;
 
 // Button Listeners to open the name dialogs
 changeNames.addEventListener("click", () => { 
