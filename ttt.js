@@ -12,7 +12,7 @@ const confirmNameTwo = document.querySelector(".confirm-name-two");
 const gameCells = document.querySelectorAll(".cell");
 
 // Function to create the Game Board
-function createBoard() {
+const CreateBoard = (() => {
   const gameBoard = {
     rows : 3,
     columns: 3,
@@ -36,7 +36,6 @@ function createBoard() {
       console.log(`${player.name} has placed an ${player.marker}`)
     } else {
       console.log("That spot is already taken");
-      
     }
   }
 
@@ -51,7 +50,7 @@ function createBoard() {
   console.log(formattedBoard);
 };
   return { getBoard, placeMarker, printBoard};
-};
+})();
 
 // Player names Objects, will most likely move them into the game logic later.
 let playerInfo = (playerOneName, playerTwoName) => {
@@ -77,11 +76,11 @@ const players = playerInfo("Angel", "Odin");
   }
 
 // Function that defines the logic that enables playing rounds and matches
-function ticTacToe() {
-  const board = createBoard();
+const tttController = (() => {
+  const board = CreateBoard;
   let playerTurn = players.playerOne;
 
-// 
+
   const switchTurn = () => {
     playerTurn = playerTurn === players.playerOne ? players.playerTwo : players.playerOne;
   }
@@ -97,26 +96,83 @@ function ticTacToe() {
     console.log(`${getPlayerTurn().name} placed a ${getPlayerTurn().marker} at [${row}, ${column}]`)
 
     // Game Win Conditions to be added later
-    switchTurn();
-    newRoundStart();
+      if(checkWin(board.getBoard())) {
+        alert(`${getPlayerTurn().name} is the winner`);
+        return;
+      };
+
+      if(checkDraw(board.getBoard())){
+        alert("It's a draw, play again!");
+        return;
+      };
+      switchTurn();
+      newRoundStart();
   }
 
-  const resetGame = () => {
-  gameCells.forEach((cell) => {
-    cell.textContent = ""; 
-  }) 
+  const checkWin = () => {
+    let hasWon = false;
+    let winningCombos = [
+      // Winning Rows
+      [ [0, 1], [0, 1], [0, 2] ],
+      [ [1, 0], [1, 1], [1, 3] ],
+      [ [2, 0], [2, 2], [2, 3] ],
 
-  board.printBoard();
+      // Winning Columns
+      [ [0, 0], [1, 0], [2, 0] ],
+      [ [0, 1], [1, 1], [2, 1] ],
+      [ [0, 2], [1, 2], [2, 3] ],
 
-  for (let i = 0; i < board.rows; i++) {
-    for (let j = 0; j < board.columns; j++) {
-      game.board[i][j].addMarker(""); // reset internal board
+      // Winning Diagonals
+      [ [0, 0], [1, 1], [2, 2] ],
+      [ [0, 2], [1, 1], [2, 0] ]
+    ];
+
+    gameBoard.getBoard();
+    gameBoard.board[row][col].getSquareValue();
+    for(let i = 0; i < winningCombos.length; i++){
+      const combo = winningCombos[i];
+      const [cell1, cell2, cell3] = combo;
+      const firstValue = board[cell1[0]][cell1[1]].getSquareValue();
+      const secondValue = board[cell2[0]][cell2[1]].getSquareValue();
+      const thirdValue = board[cell3[0]][cell3[1]].getSquareValue();
+
+      if(
+        firstValue !== "" && 
+        firstValue === secondValue &&
+        firstValue === thirdValue
+      ) {
+        resetGame();
+        return true;
+      } 
     }
   }
 
+  // Function to check for a draw
+  const checkDraw = () => {
+    const allSquares = gameBoard.board.flat();
+    const cellsFull = allSquares.every(cell => cell.getSquareValue() !== "");
 
-  playerTurn = players.playerOne;
-}
+    if(cellsFull && !checkWin(board.getBoard())){
+      
+      resetGame();
+      return true;
+    } 
+    return false;
+  }
+
+  const resetGame = () => {
+    gameCells.forEach((cell) => {
+      cell.textContent = ""; 
+    }) 
+
+    for (let i = 0; i < board.getBoard().length; i++) {
+    for (let j = 0; j < board.getBoard()[i].length; j++) {
+      board.getBoard()[i][j].addMarker(""); // clear each cell internally
+    }
+  }
+    board.printBoard();
+    playerTurn = players.playerOne;
+  } 
 
   gameCells.forEach((gameCell, index) => {
     // Added Variables to associate the row and columns with each cell
@@ -150,14 +206,17 @@ function ticTacToe() {
     })
 })
 
+
   newRoundStart();  
 
   return {playRound, getPlayerTurn, resetGame};
-}
+})();
 
-const game = ticTacToe();
+const game = tttController;
 game.resetGame();
-// Display Player Names
+
+const uiController = (() => {
+  // Display Player Names
 playerOneName.textContent = `${players.playerOne.name}: `;
 playerTwoName.textContent = `${players.playerTwo.name}: `;
 
@@ -185,8 +244,11 @@ confirmNameTwo.addEventListener("click", () => {
 newGame.addEventListener("click", () => {
   game.resetGame();
 })
+})();
 
-// Listener to add a marker to a cell on the board, will add win check later
+
+
+
 
 
 
