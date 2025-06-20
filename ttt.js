@@ -96,39 +96,28 @@ const tttController = (() => {
     console.log(`${getPlayerTurn().name} placed a ${getPlayerTurn().marker} at [${row}, ${column}]`)
 
     // Game Win Conditions to be added later
-      if(checkWin(board.getBoard())) {
-        alert(`${getPlayerTurn().name} is the winner`);
-        return;
-      };
-
-      if(checkDraw(board.getBoard())){
-        alert("It's a draw, play again!");
-        return;
-      };
+      
       switchTurn();
       newRoundStart();
   }
 
-  const checkWin = () => {
-    let hasWon = false;
+  const checkWin = (board) => {
     let winningCombos = [
       // Winning Rows
-      [ [0, 1], [0, 1], [0, 2] ],
-      [ [1, 0], [1, 1], [1, 3] ],
-      [ [2, 0], [2, 2], [2, 3] ],
+      [ [0, 0], [0, 1], [0, 2] ],
+      [ [1, 0], [1, 1], [1, 2] ],
+      [ [2, 0], [2, 1], [2, 2] ],
 
       // Winning Columns
       [ [0, 0], [1, 0], [2, 0] ],
       [ [0, 1], [1, 1], [2, 1] ],
-      [ [0, 2], [1, 2], [2, 3] ],
+      [ [0, 2], [1, 2], [2, 2] ],
 
       // Winning Diagonals
       [ [0, 0], [1, 1], [2, 2] ],
       [ [0, 2], [1, 1], [2, 0] ]
     ];
 
-    gameBoard.getBoard();
-    gameBoard.board[row][col].getSquareValue();
     for(let i = 0; i < winningCombos.length; i++){
       const combo = winningCombos[i];
       const [cell1, cell2, cell3] = combo;
@@ -141,20 +130,35 @@ const tttController = (() => {
         firstValue === secondValue &&
         firstValue === thirdValue
       ) {
+        alert(`${getPlayerTurn().name} wins`)
         resetGame();
         return true;
-      } 
+      }
     }
+    return false;
   }
 
   // Function to check for a draw
-  const checkDraw = () => {
-    const allSquares = gameBoard.board.flat();
+  const checkDraw = (board) => {
+    const allSquares = board.flat();
     const cellsFull = allSquares.every(cell => cell.getSquareValue() !== "");
 
-    if(cellsFull && !checkWin(board.getBoard())){
-      
+    if(cellsFull && !checkWin(board)){
+      alert(`It's a draw`);
       resetGame();
+      return true;
+    } 
+    return false;
+  }
+
+  // Function to manage/check game state
+  const gameState = (board) => {
+    if(checkWin(board)) {
+      console.log(`${getPlayerTurn().name} is the winner`);
+      return true;
+    };
+    if(checkDraw(board)){
+      console.log("It's a draw!");
       return true;
     } 
     return false;
@@ -198,8 +202,9 @@ const tttController = (() => {
         gameCell.classList.add(getPlayerTurn().marker === "X" ? "player-one-marker" : "player-two-marker");
         gameCell.classList.remove(getPlayerTurn().marker === "X" ? "hover-x" : "hover-o");
 
-        // Update the board and begin a new turn;
+        // Update the board, check for any win conditions, reset if a win/draw, switch turns if not.
         board.printBoard();
+        if(gameState(board.getBoard())) return;
         switchTurn();
         newRoundStart();
       }
