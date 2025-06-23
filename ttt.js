@@ -31,13 +31,15 @@ const CreateBoard = (() => {
   
   // Function to switch values of cells to player markers, need to prevent turn switching if a player tries to overwrite a cell with a value
   const placeMarker = (row, column, player) => {
-    if (gameBoard.board[row][column].getSquareValue() === "") {
-      gameBoard.board[row][column].addMarker(player.marker);
-      console.log(`${player.name} has placed an ${player.marker}`)
-    } else {
-      console.log("That spot is already taken");
-    }
+  if (gameBoard.board[row][column].getSquareValue() === "") {
+    gameBoard.board[row][column].addMarker(player.marker);
+    console.log(`${player.name} has placed an ${player.marker}`);
+    return true;
+  } else {
+    console.log("That spot is already taken");
+    return false;
   }
+};
 
   // Logic to print the board to the console in an array for a clear visual
   const printBoard = () => {
@@ -52,16 +54,19 @@ const CreateBoard = (() => {
   return { getBoard, placeMarker, printBoard};
 })();
 
-// Player names Objects, will most likely move them into the game logic later.
+// Player name and score Objects, will most likely move them into the game logic later.
 let playerInfo = (playerOneName, playerTwoName) => {
+  let playerOneScore = 0;
+  let playerTwoScore = 0;
+  
   return {
-    playerOne: { name: playerOneName, marker: "X" },
-    playerTwo: { name: playerTwoName, marker: "O" }
+    playerOne: { name: playerOneName, marker: "X", score: playerOneScore },
+    playerTwo: { name: playerTwoName, marker: "O", score: playerTwoScore }
   };
 };
 
 const players = playerInfo("Angel", "Odin");
-
+console.log(players.playerOne);
 // function to define and change the value of each square on the board
   function boardSquare() {
     let squareValue = "";
@@ -95,8 +100,7 @@ const tttController = (() => {
     board.placeMarker(row, column, getPlayerTurn());
     console.log(`${getPlayerTurn().name} placed a ${getPlayerTurn().marker} at [${row}, ${column}]`)
 
-    // Game Win Conditions to be added later
-      
+      if(checkWin || checkDraw) return;
       switchTurn();
       newRoundStart();
   }
@@ -130,7 +134,12 @@ const tttController = (() => {
         firstValue === secondValue &&
         firstValue === thirdValue
       ) {
-        alert(`${getPlayerTurn().name} wins`)
+        alert(`${getPlayerTurn().name} wins`);
+        getPlayerTurn().score++;
+        playerOneName.textContent = `${players.playerOne.name}: ${players.playerOne.score}`;
+        playerTwoName.textContent = `${players.playerTwo.name}: ${players.playerTwo.score}`;
+        console.log(`Updated scores — P1: ${players.playerOne.score}, P2: ${players.playerTwo.score}`);
+        console.log(`${getPlayerTurn().name}: ${getPlayerTurn().score}`);
         resetGame();
         return true;
       }
@@ -176,6 +185,8 @@ const tttController = (() => {
   }
     board.printBoard();
     playerTurn = players.playerOne;
+    players.playerOne.score = 0;
+    players.playerOne.score = 0;
   } 
 
   gameCells.forEach((gameCell, index) => {
@@ -207,10 +218,11 @@ const tttController = (() => {
         if(gameState(board.getBoard())) return;
         switchTurn();
         newRoundStart();
+      } else {
+        alert("That spot is taken!");
       }
     })
 })
-
 
   newRoundStart();  
 
@@ -221,9 +233,10 @@ const game = tttController;
 game.resetGame();
 
 const uiController = (() => {
-  // Display Player Names
-playerOneName.textContent = `${players.playerOne.name}: `;
-playerTwoName.textContent = `${players.playerTwo.name}: `;
+  // Display Player Names and scores
+playerOneName.textContent = `${players.playerOne.name}: ${players.playerOne.score}`;
+playerTwoName.textContent = `${players.playerTwo.name}: ${players.playerTwo.score}`;
+
 
 // Button Listeners to open/close the name dialog
 changeNames.addEventListener("click", () => { 
@@ -236,18 +249,24 @@ closeDialog.addEventListener("click", () => {
 
 // Event Listeners to change player names in the dialog box
 confirmNameOne.addEventListener("click", () => {
-  playerOneName.textContent = playerOneNameInput.value;
+  players.playerOne.name = playerOneNameInput.value.trim() || players.playerOne.name;
+  playerOneName.textContent = `${players.playerOne.name}: ${players.playerOne.score}`;
   playerOneNameInput.value = "";
-})
+});
 
 confirmNameTwo.addEventListener("click", () => {
-  playerTwoName.textContent = playerTwoNameInput.value;
+  players.playerTwo.name = playerTwoNameInput.value.trim() || players.playerTwo.name;
+  playerTwoName.textContent = `${players.playerTwo.name}: ${players.playerTwo.score}`;
   playerTwoNameInput.value = "";
-})
+});
 
 // Event Listener to reset game
 newGame.addEventListener("click", () => {
   game.resetGame();
+  players.playerOne.score = 0;
+  players.playerOne.score = 0;
+  playerOneName.textContent = `${players.playerOne.name}: ${players.playerOne.score}`;
+  playerTwoName.textContent = `${players.playerTwo.name}: ${players.playerTwo.score}`;
 })
 })();
 
